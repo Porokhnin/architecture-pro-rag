@@ -43,10 +43,13 @@ def rename_terms_in_the_file(file, rename_rules) -> str:
 def save_file_in_knowledge_base(file_path, renamed_text):
     logger.info(f"Start saving file in knowledge base: {file_path}")
 
-    with open(file_path, 'w', encoding='utf-8') as output_file:
-        output_file.write(renamed_text)
+    try:
+        with open(file_path, 'w', encoding='utf-8') as output_file:
+            output_file.write(renamed_text)
 
-    logger.info(f"File saved in knowledge base: {file_path}")
+        logger.info(f"File saved in knowledge base: {file_path}")        
+    except Exception as e:
+        logger.error(e)  
 
     return file_path
 
@@ -63,6 +66,10 @@ def generate_knowledge_base():
     logger.debug(f"rename_rules: {rename_rules}")
 
     try:
+
+        # Create the directory
+        os.makedirs(KNOWLEDGE_BASE_DIR, exist_ok=True)
+
         for file in os.listdir(KNOWLEDGE_BASE_ORIGINAL_DIR):
             logger.info(f"Start rocessing file: {file}")
 

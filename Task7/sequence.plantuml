@@ -1,0 +1,15 @@
+@startuml
+evaluate -> golden_questions_loader : Загружаем файл с золотыми вопросами
+evaluate <- golden_questions_loader : Золотые вопросы
+evaluate -> evaluate  : Загрузка llm
+loop Золотые вопросы
+evaluate -> llm: Отправляем золотой вопрос
+llm -> evaluate: Получаем ответ
+
+evaluate -> evaluate: Ищем в ответе ключевые слова и фиксируем результат
+evaluate -> evaluate: Ищем источники
+evaluate -> evaluate: Сохраняем данные в лог
+end
+@enduml
+
+https://editor.plantuml.com/uml/bL9HJeD04FqduGvpWLx06DERD2HiZCa2Mi1lIZMDgT5F_T9u0q95ABJr2ZCtyh5LooP6um-xC_lcpPitZEF4coPfe5r7NNewzH95enCwZRIlmib5gkBaB0hZYOuyNqtfYFY12rv99dD-mwtY3SaLBclkI6R4DU-uuvtaikGDDyGb4k-I8JK33Ab1f-FHxvqEL9L594jRxlVT5bXpomLf7RYEZgBp_p2Y25HFaXj00MWdzsRQmuGurnO9skXWg0SKpprQvhBuDCiKbbn9xZe_3u6YHxdPWyi1lbVSWkiEN1MNPWHu2YbuBmXUOn4DjyWrPdopcmn7ZQ2JMr0KVTk_cZQm0yEXpRRdipPcbxm0TMtysNwvyze72FS6av6t0a7ekyuON_ng7m00

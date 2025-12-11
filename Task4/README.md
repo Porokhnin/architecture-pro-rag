@@ -4,7 +4,12 @@
 
 ### Я игрался с разными моделями, как для EMBEDDING, так и для llm. Но связка 'Qwen/Qwen3-Embedding-0.6B' и 'Qwen/Qwen3-1.7B' показали лучшие результаты.
 
-### Результаты ответов есть в логах.
+
+## Новые (v2) результаты ответов 
+![new thinking model](new_thinking.png)
+### Так же выведены ссылки и на файл и url.
+
+## Результаты ответов есть в логах.
 
 [System]
 You are a bot assistant who thinks first and then give one answer, who answers questions based only on the information provided in the Context block.

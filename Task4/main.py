@@ -17,15 +17,15 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, Messa
 
 KNOWLEDGE_BASE_DIR = 'knowledge_base'
 EMBEDDING_MODEL = 'Qwen/Qwen3-Embedding-0.6B'
-NORMALIZE = False;
-CHUNK_SIZE = 400;
-CHUNK_OVERLAP = 50;
+NORMALIZE = False
+CHUNK_SIZE = 400
+CHUNK_OVERLAP = 50
 MODEL = 'Qwen/Qwen3-1.7B'
 BASE_URL = 'https://lotr.fandom.com/wiki'
 LOG_FILE = 'vector_index.log'
 INDEX_DIR = 'vector_index'
 BOT_TOKEN = ''
-TRUST_REMOTE_CODE = True;
+TRUST_REMOTE_CODE = True
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -87,7 +87,9 @@ def load_documents(knowledge_base_dir: str) -> list[Document]:
                         "url": f'{BASE_URL}/{os.path.splitext(file)[0]}',                         
                         "updated": os.path.getatime(f'{knowledge_base_dir}/{file}'),
                         "length": len(file_text)
-                    },))
+                    }
+                )
+            )
             
     return documents
     
@@ -121,8 +123,8 @@ def test_agent():
 
     response = rag_execute(question)
 
-    print(f"Answer(faithfulness:{0}):{response['result']}")
-    logger.info(f"Answer(faithfulness:{0}):{response['result']}")
+    print(f"Answer:{response['result']}")
+    logger.info(f"Answer:{response['result']}")
 
 
 def test_vector():
@@ -196,6 +198,12 @@ def load_llm():
     return llm
 
 
+def load_retriever():
+    retriever = load_vector_store().as_retriever(search_type="similarity_score_threshold", 
+                                                 search_kwargs={"k": 4, "score_threshold": 0.5})
+    return retriever
+
+
 def get_prompt_template() -> PromptTemplate:
 
     template = """
@@ -237,8 +245,9 @@ answer:
 
 
 def rag_execute(question: str):
+
     llm = load_llm()
-    retriever = load_vector_store().as_retriever()
+    retriever = load_retriever()
     prompt = get_prompt_template()    
     
     qa_chain = RetrievalQA.from_chain_type(
@@ -251,6 +260,7 @@ def rag_execute(question: str):
     
     return qa_chain.invoke({"query":question})
 
+
 def extract_references(llm_response) -> str:
     references = ['\nReference: \n']
     for doc in llm_response["source_documents"]:
@@ -258,7 +268,8 @@ def extract_references(llm_response) -> str:
             references.append(f"{doc.metadata['source']} {doc.metadata['url']} \n")
     final_references = "".join(references)
 
-    return final_references;
+    return final_references
+
 
 # Define a command handler. This is called when the user sends "/start"
 async def bot_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

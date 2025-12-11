@@ -169,6 +169,33 @@ def load_vector_store() -> FAISS:
     return vector_store
 
 
+def load_llm():
+# Параметры выборки :
+# Для режима обдумывания ( enable_thinking=True) используйте Temperature=0.6, TopP=0.95, TopK=20, и MinP=0. 
+# НЕ используйте жадное декодирование , так как это может привести к снижению производительности и бесконечным повторениям.
+
+# Для режима без размышлений ( enable_thinking=False) мы предлагаем использовать Temperature=0.7, TopP=0.8, TopK=20, и MinP=0.
+
+# Для поддерживаемых фреймворков вы можете изменить presence_penaltyпараметр в диапазоне от 0 до 2, чтобы уменьшить количество бесконечных повторений. 
+# Однако использование более высокого значения может иногда приводить к смешению языков и небольшому снижению производительности модели.
+    llm = HuggingFacePipeline.from_model_id(
+        model_id=MODEL, 
+        task="text-generation", 
+        model_kwargs={"trust_remote_code":TRUST_REMOTE_CODE}, 
+        pipeline_kwargs={
+            "return_full_text": False, 
+            "repetition_penalty": 1.2,
+
+            "top_k": 20,
+            "top_p": 0.95,
+            "min_p": 0,
+            "temperature": 0.6,
+
+            }
+        )
+    return llm
+
+
 def get_prompt_template() -> PromptTemplate:
 
     template = """
@@ -208,29 +235,9 @@ answer:
     
     return prompt_template
 
-# Параметры выборки :
-# Для режима обдумывания ( enable_thinking=True) используйте Temperature=0.6, TopP=0.95, TopK=20, и MinP=0. 
-# НЕ используйте жадное декодирование , так как это может привести к снижению производительности и бесконечным повторениям.
 
-# Для режима без размышлений ( enable_thinking=False) мы предлагаем использовать Temperature=0.7, TopP=0.8, TopK=20, и MinP=0.
-
-# Для поддерживаемых фреймворков вы можете изменить presence_penaltyпараметр в диапазоне от 0 до 2, чтобы уменьшить количество бесконечных повторений. 
-# Однако использование более высокого значения может иногда приводить к смешению языков и небольшому снижению производительности модели.
 def rag_execute(question: str):
-    llm = HuggingFacePipeline.from_model_id(model_id=MODEL, 
-                                            task="text-generation", 
-                                            model_kwargs={"trust_remote_code":TRUST_REMOTE_CODE}, 
-                                            pipeline_kwargs={
-                                                "return_full_text": False, 
-                                                "repetition_penalty": 1.2,
-
-                                                "top_k": 20,
-                                                "top_p": 0.95,
-                                                "min_p": 0,
-                                                "temperature": 0.6,
-
-                                                }
-                                            )
+    llm = load_llm()
     retriever = load_vector_store().as_retriever()
     prompt = get_prompt_template()    
     
@@ -266,7 +273,7 @@ async def bot_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         logger.info(f"User question:{update.message.text}")
 
         response = rag_execute(update.message.text)
-        references = extract_references(response);
+        references = extract_references(response)
 
     except Exception as e:
         logger.error(e)

@@ -1,0 +1,31 @@
+@startuml
+
+cron -> job : запуск задания обновления индекса
+job -> knowledge_base : проверка изменения источников
+
+alt источники изменены
+
+    job <- knowledge_base : источники изменены
+    job -> knowledge_base : загрузка документов
+    job <- knowledge_base : документы
+    job -> chunks : генерация чанков
+    job <- chunks : чанки
+    job -> embeddings : генерация эмбеддингов
+    job <- embeddings : эмбеддинги
+    job -> faiss: генерация индекса
+    job <- faiss: индекс
+    job -> vector_index : сохранение индекса
+    job <- vector_index: индекс сохранен
+
+else источники не изменены
+
+    job <- knowledge_base : источники не изменены
+    
+end
+
+cron <- job: завершение задания
+
+@enduml 
+
+https://editor.plantuml.com/uml/fPDjJeD048R_at07Bj0B66DwamRAMh4KaaBLdyN6ZyGOhq85KeAMNc7sHhu3XV9bOo8DwUuoyxplxioEFLzV-gk5hIggCbswZZQwqcvTGxlGQ4SX7UH61fILanZldbBveL5EMmnp-gGlIgh558COqmmfeQem1hIvuzxRmfo9YQ5xWi47kIvI4_nd57BYZhuBpeab0_b8kNpX1KGXdYtgjj__bdO8yer3DJniuN8qOE4lY0emk0S-ZqYkvGQZOWynB6QO5WXci-6p7ZeP7SdfpSgPUnmNbQPmMA5yBau7jhaIMK-aJgeZqXPKB0nXcfOp-mty3ZTRBCVuSJcZdaGBCH3V5hpMBSyRbEfsIqEYIcf4jA1tOkgxoudbcEA1JGGev1EZgmQYv1o-cTvMwQ6uZuIDSWqrpBwK-NVZ3NEO0d77h6ycUC0UUw-uFVBrjD_M1UMSCN9niNy0
+
